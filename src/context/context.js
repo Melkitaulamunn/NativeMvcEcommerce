@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React, { createContext } from 'react'
+import React, { createContext,useState } from 'react'
 import { create } from 'react-test-renderer'
 
-const context = () => {
-const DataContext=createContext()
+
+const DataContext=createContext();
 const DataProvider=({children})=>{
 
     const [userAvaible,setUserAvaible]=useState(true)
@@ -19,7 +19,5 @@ return(
 )
 
 }
-  
-exports (DataCoontext,DataProvider)
-
-const styles = StyleSheet.create({})
+  //1 den fazlayapı dışarı çıkaırlırken süslü parantez kullnaılır
+export {DataContext,DataProvider}
