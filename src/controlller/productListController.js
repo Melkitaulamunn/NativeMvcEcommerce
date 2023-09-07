@@ -28,4 +28,4 @@ return product
     }
 
 }
-export default ProductListController
+export default ProductCartController

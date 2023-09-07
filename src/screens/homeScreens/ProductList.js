@@ -1,94 +1,85 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, FlatList, Image, TouchableOpacity } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet, View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
+import ProductCartModel from '../../models/ProductCartModel';
+import ProductCartController from '../../controlller/productListController';
+import { useNavigation } from '@react-navigation/native';
+import { DataContext } from '../../context/context';
+import StarRating from 'react-native-star-rating-widget';
+import Animation from '../../components/Animation';
 
 
 
-const propertyData = [
-  {
-    id: '1',
-    image: 'https://source.unsplash.com/900x900/?house',
-    price: '$250,000',
-    address: '123 Main St',
-    squareMeters: '150',
-    beds: '3',
-    baths: '2',
-    parking: '1'
-  },
-  {
-    id: '2',
-    image: 'https://source.unsplash.com/900x900/?apartment',
-    price: '$400,000',
-    address: '456 Oak Ave',
-    squareMeters: '200',
-    beds: '4',
-    baths: '3',
-    parking: '2'
-  },
-  {
-    id: '3',
-    image: 'https://source.unsplash.com/900x900/?house+front',
-    price: '$150,000',
-    address: '789 Maple Rd',
-    squareMeters: '100',
-    beds: '2',
-    baths: '1',
-    parking: '0'
-  },
-  {
-    id: '4',
-    image: 'https://source.unsplash.com/900x900/?small+house',
-    price: '$150,000',
-    address: '789 Maple Rd',
-    squareMeters: '100',
-    beds: '2',
-    baths: '1',
-    parking: '0'
-  }
-];
+
 
 const PropertyList = () => {
-  const [searchText, setSearchText] = useState('');
 
-  const handleSearch = (text) => {
-    setSearchText(text);
+  
+
+  const [product, setProduct] = useState(null)
+  const { productDetailInfo, setProductDetailInfo } = useContext(DataContext)
+  const navigation = useNavigation()
+
+  const fetchProducts = async () => {
+    try {
+      const fetchPro = await ProductCartController.getProduct()
+      setProduct(fetchPro)
+    }
+    catch (error) {
+
+      console.log(error)
+    }
+
   }
 
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const goToDetailScreen = (touchedProduct) => {
+    setProductDetailInfo(touchedProduct)
+    navigation.navigate("ProductDetail")
+  }
+
+
+
+
+
+
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={() => goToDetailScreen(item)}>
       <Image source={{ uri: item.image }} style={styles.image} />
       <View style={styles.cardBody}>
-        <Text style={styles.price}>{item.price}</Text>
-        <Text style={styles.address}>{item.address}</Text>
-        <Text style={styles.squareMeters}>{item.squareMeters} sq. m.</Text>
+        <Text style={styles.price}>${item.price}</Text>
+        <Text style={styles.address}>{item.description}</Text>
+        <Text style={styles.squareMeters}>{item.brand} </Text>
       </View>
       <View style={styles.cardFooter}>
-        <Text style={styles.beds}>{item.beds} beds</Text>
-        <Text style={styles.baths}>{item.baths} baths</Text>
-        <Text style={styles.parking}>{item.parking} parking</Text>
+        <Text style={styles.beds}> </Text>
+        <StarRating
+          rating={item.rating}
+        />
       </View>
     </TouchableOpacity>
   );
 
-  const filteredData = propertyData.filter((item) => {
-    return item.address.toLowerCase().includes(searchText.toLowerCase());
-  });
+
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchInputContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search properties..."
-          onChangeText={handleSearch}
-          value={searchText}
-        />
-      </View>
+
+      {product===null?(
+      <Animation />
+      ):(
+
       <FlatList
         contentContainerStyle={styles.propertyListContainer}
-        data={filteredData}
+        data={product}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-      />
+
+      />)
+      }
+
     </View>
   );
 }
@@ -96,27 +87,27 @@ const PropertyList = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop:60,
+    paddingTop: 60,
   },
-  searchInputContainer:{
-    paddingHorizontal:20,
+  searchInputContainer: {
+    paddingHorizontal: 20,
   },
   searchInput: {
     height: 40,
     borderWidth: 1,
-    borderColor:'#dcdcdc',
-    backgroundColor:'#fff',
+    borderColor: '#dcdcdc',
+    backgroundColor: '#fff',
     borderRadius: 5,
     padding: 10,
     marginBottom: 10
   },
-  propertyListContainer:{
-    paddingHorizontal:20,
+  propertyListContainer: {
+    paddingHorizontal: 20,
   },
   card: {
     backgroundColor: '#fff',
     borderRadius: 5,
-    marginTop:10,
+    marginTop: 10,
     marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: {
@@ -130,8 +121,8 @@ const styles = StyleSheet.create({
   image: {
     height: 150,
     marginBottom: 10,
-    borderTopLeftRadius:5,
-    borderTopRightRadius:5,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
   },
   cardBody: {
     marginBottom: 10,
@@ -154,23 +145,23 @@ const styles = StyleSheet.create({
   cardFooter: {
     padding: 10,
     flexDirection: 'row',
-    borderTopWidth:1,
-    borderTopColor:'#dcdcdc',
+    borderTopWidth: 1,
+    borderTopColor: '#dcdcdc',
     justifyContent: 'space-between',
   },
   beds: {
     fontSize: 14,
-    color:'#ffa500',
+    color: '#ffa500',
     fontWeight: 'bold'
   },
   baths: {
     fontSize: 14,
-    color:'#ffa500',
+    color: '#ffa500',
     fontWeight: 'bold'
   },
   parking: {
     fontSize: 14,
-    color:'#ffa500',
+    color: '#ffa500',
     fontWeight: 'bold'
   }
 });
